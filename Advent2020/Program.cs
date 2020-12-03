@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Advent2020
 {
@@ -7,9 +9,69 @@ namespace Advent2020
     {
         static void Main(string[] args)
         {
-            string[] entries = File.ReadAllLines("Entries.txt");
+            string[] passwordsWithCorporatePolicies = File.ReadAllLines("Passwords_CorporatePolicies.txt");
 
-            FindMultipleOfThree(entries);
+            PrintNumberOfValidPasswords(passwordsWithCorporatePolicies);
+        }
+
+        private static void PrintNumberOfValidPasswords(string[] passwordsWithCorporatePolicies)
+        {
+            int numberOfValidPasswords = 0;
+            foreach (string passwordWithCorporatePolicy in passwordsWithCorporatePolicies)
+            {
+                bool isValidPassword = IsValidPasswordNewCriteria(passwordWithCorporatePolicy);
+                if (isValidPassword)
+                    numberOfValidPasswords++;
+            }
+
+            Console.WriteLine(numberOfValidPasswords);
+        }
+
+        private static bool IsValidPasswordNewCriteria(string passwordWithCorporatePolicy)
+        {
+            string corporatePolicy = passwordWithCorporatePolicy.Split(": ").First();
+
+            int index1 = int.Parse(corporatePolicy.Split(' ')[0].Split('-')[0]) - 1;
+            int index2 = int.Parse(corporatePolicy.Split(' ')[0].Split('-')[1]) - 1;
+
+            char character = corporatePolicy.Split(' ')[1].First();
+
+            string password = passwordWithCorporatePolicy.Split(": ").Last();
+
+            if (password[index1] != character && password[index2] != character)
+            {
+                return false;
+            }
+
+            if (password[index1] == character && password[index2] == character)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsValidPasswordOldCriteria(string passwordWithCorporatePolicy)
+        {
+            string corporatePolicy = passwordWithCorporatePolicy.Split(": ").First();
+
+            string[] allowedInstances = corporatePolicy.Split(' ').First().Split('-');
+
+            int minInstances = int.Parse(allowedInstances.First());
+            int maxInstances = int.Parse(allowedInstances.Last());
+
+            char character = corporatePolicy.Split(' ').Last().First();
+
+            string password = passwordWithCorporatePolicy.Split(": ").Last();
+
+            int instancesOfCharacterInPassword = password.Count(c => c == character);
+
+            if (instancesOfCharacterInPassword >= minInstances && instancesOfCharacterInPassword <= maxInstances)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private static void FindMultipleOfTwo(string[] entries)
