@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -9,9 +8,37 @@ namespace Advent2020
     {
         static void Main(string[] args)
         {
-            string[] passwordsWithCorporatePolicies = File.ReadAllLines("Passwords_CorporatePolicies.txt");
+            string[] map = File.ReadAllLines("Map.txt");
 
-            PrintNumberOfValidPasswords(passwordsWithCorporatePolicies);
+            long trees1 = AmountOfTreeEncounters(map, 1, 1);
+            long trees2 = AmountOfTreeEncounters(map, 3, 1);
+            long trees3 = AmountOfTreeEncounters(map, 5, 1);
+            long trees4 = AmountOfTreeEncounters(map, 7, 1);
+            long trees5 = AmountOfTreeEncounters(map, 1, 2);
+
+            long treesMultiplied = trees1 * trees2 * trees3 * trees4 * trees5;
+
+            Console.WriteLine(treesMultiplied);
+        }
+
+        private static long AmountOfTreeEncounters(string[] map, int stepsRight, int stepsDown)
+        {
+            long amountOfTreeEncounters = 0;
+
+            int x = 0;
+            int y = 0;
+
+            while (y < map.Count() - 1)
+            {
+                y += stepsDown;
+                x = (x + stepsRight) % map[0].Count();
+                if (map[y][x] == '#')
+                {
+                    amountOfTreeEncounters++;
+                }
+            }
+
+            return amountOfTreeEncounters;
         }
 
         private static void PrintNumberOfValidPasswords(string[] passwordsWithCorporatePolicies)
