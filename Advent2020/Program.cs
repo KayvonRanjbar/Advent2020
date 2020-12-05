@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Advent2020
 {
@@ -8,17 +10,108 @@ namespace Advent2020
     {
         static void Main(string[] args)
         {
-            string[] map = File.ReadAllLines("Map.txt");
+            string passportsString = File.ReadAllText("Passports.txt");
+            string[] passports = passportsString.Split("\n\n", StringSplitOptions.RemoveEmptyEntries);
+            List<string> cleanPassports = new List<string>();
+            foreach (string passport in passports)
+            {
+                var cleanPassport = passport.Replace('\n', ' ');
+                cleanPassports.Add(cleanPassport);
+            }
 
-            long trees1 = AmountOfTreeEncounters(map, 1, 1);
-            long trees2 = AmountOfTreeEncounters(map, 3, 1);
-            long trees3 = AmountOfTreeEncounters(map, 5, 1);
-            long trees4 = AmountOfTreeEncounters(map, 7, 1);
-            long trees5 = AmountOfTreeEncounters(map, 1, 2);
+            List<Dictionary<string, string>> passportDictionaryList = new List<Dictionary<string, string>>();
 
-            long treesMultiplied = trees1 * trees2 * trees3 * trees4 * trees5;
+            foreach (var passport in cleanPassports)
+            {
+                Dictionary<string, string> passportDictionary = new Dictionary<string, string>();
+                string[] keyValuePairs = passport.Split(' ');
+                foreach (var keyValuePairString in keyValuePairs)
+                {
+                    string[] keyValuePair = keyValuePairString.Split(':');
+                    passportDictionary.Add(keyValuePair[0], keyValuePair[1]);
+                }
+                passportDictionaryList.Add(passportDictionary);
+            }
 
-            Console.WriteLine(treesMultiplied);
+            int numberOfValidPassports = 0;
+
+            foreach (Dictionary<string, string> passport in passportDictionaryList)
+            {
+                if (IsValidPassport(passport))
+                {
+                    numberOfValidPassports++;
+                }
+            }
+
+            Console.WriteLine(numberOfValidPassports);
+        }
+
+        private static bool IsValidPassport(Dictionary<string, string> passport)
+        {
+            string[] validKeys = new string[] { "byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid" };
+            foreach (var validKey in validKeys)
+            {
+                if (!passport.ContainsKey(validKey))
+                {
+                    return false;
+                }
+            }
+
+            int birthYear = int.Parse(passport["byr"]);
+            if (birthYear is not (>= 1920 and <= 2002))
+            {
+                return false;
+            }
+
+            int issueYear = int.Parse(passport["iyr"]);
+            if (issueYear is not (>= 2010 and <= 2020))
+            {
+                return false;
+            }
+
+            int expirationYear = int.Parse(passport["eyr"]);
+            if (expirationYear is not (>= 2020 and <= 2030))
+            {
+                return false;
+            }
+
+            string height = passport["hgt"];
+            if (height[(height.Length - 2)..] is not ("cm" or "in"))
+            {
+                return false;
+            }
+            int heightValue = height[(height.Length - 2)..] is "cm" ? int.Parse(string.Concat(height.TakeWhile(d => !d.Equals('c')))) :
+                int.Parse(string.Concat(height.TakeWhile(d => !d.Equals('i'))));
+            if (height[(height.Length - 2)..] is "cm" && heightValue is not (>= 150 and <= 193))
+            {
+                return false;
+            }
+            if (height[(height.Length - 2)..] is "in" && heightValue is not (>= 59 and <= 76))
+            {
+                return false;
+            }
+
+            string hairColor = passport["hcl"];
+            Regex rgx = new Regex(@"^#{1}[0-9a-f]{6}$");
+            if (!rgx.IsMatch(hairColor))
+            {
+                return false;
+            }
+
+            string eyeColor = passport["ecl"];
+            if (eyeColor is not ("amb" or "blu" or "brn" or "gry" or "grn" or "hzl" or "oth"))
+            {
+                return false;
+            }
+
+            string passportId = passport["pid"];
+            Regex rgx2 = new Regex(@"^[0-9]{9}$");
+            if (!rgx2.IsMatch(passportId))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static long AmountOfTreeEncounters(string[] map, int stepsRight, int stepsDown)
