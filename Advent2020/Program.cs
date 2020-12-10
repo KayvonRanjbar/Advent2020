@@ -10,6 +10,40 @@ namespace Advent2020
     {
         static void Main(string[] args)
         {
+            PrintHighestSeatId();
+        }
+
+        private static void PrintHighestSeatId()
+        {
+            string[] boardingPasses = File.ReadAllLines("Boarding_Passes.txt");
+
+            foreach (var boardingPass in boardingPasses)
+            {
+                int seatId = GetSeatId(boardingPass);
+            }
+        }
+
+        private static int GetSeatId(string boardingPass)
+        {
+            Tuple<int, int> rowRange = new Tuple<int, int>(0, 127);
+            
+
+            rowRange = ProcessByLetter(rowRange, boardingPass[0]);
+
+            return 0;
+        }
+
+        private static Tuple<int, int> ProcessByLetter(Tuple<int, int> rowRange, char letter)
+        {
+            if (letter == 'F')
+            {
+            }
+
+            return new Tuple<int, int>(0, 0);
+        }
+
+        private static void PrintNumberOfValidPassports()
+        {
             string passportsString = File.ReadAllText("Passports.txt");
             string[] passports = passportsString.Split("\n\n", StringSplitOptions.RemoveEmptyEntries);
             List<string> cleanPassports = new List<string>();
