@@ -10,36 +10,90 @@ namespace Advent2020
     {
         static void Main(string[] args)
         {
-            PrintHighestSeatId();
+            string[] boardingPasses = File.ReadAllLines("Boarding_Passes.txt");
+            List<int> seatIdsFromBoardingPasses = GetSeatIdsFromBoardingPasses(boardingPasses);
+            int seatId = GetMySeatId(seatIdsFromBoardingPasses);
+            Console.WriteLine(seatId);
+        }
+
+        private static List<int> GetSeatIdsFromBoardingPasses(string[] boardingPasses)
+        {
+            List<int> seatIds = new List<int>();
+            foreach (var boardingPass in boardingPasses)
+            {
+                seatIds.Add(GetSeatId(boardingPass));
+            }
+
+            return seatIds;
+        }
+
+        private static int GetMySeatId(List<int> otherSeatIds)
+        {
+            int maxSeatId = 127 * 8 + 7;
+            int mySeatId = 0;
+
+            while (mySeatId <= maxSeatId)
+            {
+                if (!otherSeatIds.Contains(mySeatId) && otherSeatIds.Contains(mySeatId + 1) && otherSeatIds.Contains(mySeatId - 1))
+                {
+                    return mySeatId;
+                }
+                mySeatId++;
+            }
+
+            return mySeatId;
         }
 
         private static void PrintHighestSeatId()
         {
             string[] boardingPasses = File.ReadAllLines("Boarding_Passes.txt");
+            int highestSeatId = int.MinValue;
 
             foreach (var boardingPass in boardingPasses)
             {
                 int seatId = GetSeatId(boardingPass);
+                if (seatId > highestSeatId)
+                {
+                    highestSeatId = seatId;
+                }
             }
+
+            Console.WriteLine(highestSeatId);
         }
 
         private static int GetSeatId(string boardingPass)
         {
-            Tuple<int, int> rowRange = new Tuple<int, int>(0, 127);
+            Tuple<int, int> rowMinMax = new Tuple<int, int>(0, 127);
             
+            rowMinMax = ProcessByLetter(rowMinMax, boardingPass[0]);
+            rowMinMax = ProcessByLetter(rowMinMax, boardingPass[1]);
+            rowMinMax = ProcessByLetter(rowMinMax, boardingPass[2]);
+            rowMinMax = ProcessByLetter(rowMinMax, boardingPass[3]);
+            rowMinMax = ProcessByLetter(rowMinMax, boardingPass[4]);
+            rowMinMax = ProcessByLetter(rowMinMax, boardingPass[5]);
+            rowMinMax = ProcessByLetter(rowMinMax, boardingPass[6]);
 
-            rowRange = ProcessByLetter(rowRange, boardingPass[0]);
+            int row = rowMinMax.Item1;
 
-            return 0;
+            Tuple<int, int> colMinMax = new Tuple<int, int>(0, 7);
+
+            colMinMax = ProcessByLetter(colMinMax, boardingPass[7]);
+            colMinMax = ProcessByLetter(colMinMax, boardingPass[8]);
+            colMinMax = ProcessByLetter(colMinMax, boardingPass[9]);
+
+            int col = colMinMax.Item1;
+
+            int seatId = row * 8 + col;
+
+            return seatId;
         }
 
-        private static Tuple<int, int> ProcessByLetter(Tuple<int, int> rowRange, char letter)
+        private static Tuple<int, int> ProcessByLetter(Tuple<int, int> minMax, char letter)
         {
-            if (letter == 'F')
-            {
-            }
+            var (min, max) = minMax;
+            int range = max - min;
 
-            return new Tuple<int, int>(0, 0);
+            return letter is ('F' or 'L') ? new Tuple<int, int>(min, min + range / 2) : new Tuple<int, int>(min + range / 2 + 1, max);
         }
 
         private static void PrintNumberOfValidPassports()
