@@ -10,10 +10,70 @@ namespace Advent2020
     {
         static void Main(string[] args)
         {
-            string[] boardingPasses = File.ReadAllLines("Boarding_Passes.txt");
-            List<int> seatIdsFromBoardingPasses = GetSeatIdsFromBoardingPasses(boardingPasses);
-            int seatId = GetMySeatId(seatIdsFromBoardingPasses);
-            Console.WriteLine(seatId);
+            string text = File.ReadAllText("Customs_Answers.txt");
+            int sumOfTheCounts = SumOfTheCounts(text);
+            
+            Console.WriteLine(sumOfTheCounts);
+        }
+
+        private static int SumOfTheCounts(string text)
+        {
+            string[] groupAnswers = text.Split("\r\n\r\n", StringSplitOptions.RemoveEmptyEntries);
+            int count = 0;
+
+            foreach (var groupAnswer in groupAnswers)
+            {
+                string[] groupMemberAnswers = groupAnswer.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+                int countForGroup = GetCountForGroupNew(groupMemberAnswers);
+                count += countForGroup;
+            }
+
+            return count;
+        }
+
+        private static int GetCountForGroupNew(string[] groupMemberAnswers)
+        {
+            List<char> answers = new List<char>();
+
+            for (int i = 0; i < groupMemberAnswers.Length; i++) 
+            {
+                string groupMemberAnswer = groupMemberAnswers[i];
+
+                if (i == 0)
+                {
+                    foreach (char letter in groupMemberAnswer)
+                    {
+                        answers.Add(letter);
+                    }
+                }
+
+                else if (i > 0)
+                {
+                    answers = answers.Where(answer => groupMemberAnswer.Contains(answer)).ToList();
+                }
+            }
+
+            int count = answers.Count;
+            return count;
+        }
+
+        private static int GetCountForGroup(string[] groupMemberAnswers)
+        {
+            List<char> chars = new List<char>();
+
+            foreach (string groupMemberAnswer in groupMemberAnswers)
+            {
+                foreach (char letter in groupMemberAnswer)
+                {
+                    if (!chars.Contains(letter))
+                    {
+                        chars.Add(letter);
+                    }
+                }
+            }
+
+            int count = chars.Count;
+            return count;
         }
 
         private static List<int> GetSeatIdsFromBoardingPasses(string[] boardingPasses)
