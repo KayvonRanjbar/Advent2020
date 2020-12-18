@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Advent2020
 {
@@ -10,129 +9,121 @@ namespace Advent2020
     {
         static void Main(string[] args)
         {
-            string[] testRules = File.ReadAllLines("Rules.txt");
+            string[] instructions = File.ReadAllLines("Instructions.txt");
 
-            Dictionary<string, List<Tuple<int, string>>> ruleDictionary = GetRuleDictionary(testRules);
+            RunInstructionsPartOne(instructions);
 
-            int countRequiredInsideBags = CountRequiredInsideBags("shiny gold", ruleDictionary);
-
-            Console.WriteLine(countRequiredInsideBags);
+            RunInstructionsPartTwo(instructions);
         }
-
-        private static int CountRequiredInsideBags(string color, Dictionary<string, List<Tuple<int, string>>> ruleDictionary)
+        
+        private static void RunInstructionsPartTwo(string[] instructions)
         {
-            Tuple<int, string> countColor = new Tuple<int, string>(2, color);
-
-            int bagsCount = CountInnerBags(countColor, ruleDictionary);
-            
-            return bagsCount;
-        }
-
-        private static int CountInnerBags(Tuple<int, string> countColor, Dictionary<string, List<Tuple<int, string>>> ruleDictionary)
-        {
-            int count = 0;
-
-            List<Tuple<int, string>> innerCountColors = ruleDictionary[countColor.Item2];
-
-            if (innerCountColors.Count == 0)
+            for (int i = 0; i < instructions.Length; i++)
             {
-                return count;
-            }
-            
-            foreach (Tuple<int, string> innerCountColor in innerCountColors)
-            {
-                count += (CountInnerBags(innerCountColor, ruleDictionary) * innerCountColor.Item1) + innerCountColor.Item1;
-            }
-            
-            return count;
-        }
-
-        private static int CountOuterBagsContainingColorBag(Dictionary<string, List<string>> ruleDictionary, string color)
-        {
-            int count = 0;
-
-            foreach (KeyValuePair<string,List<string>> rule in ruleDictionary)
-            {
-                bool canContainColor = CanContainColor(rule.Key, ruleDictionary, color);
-                if (canContainColor)
+                string[] modifiedInstructions = new string[instructions.Length];
+                instructions.CopyTo(modifiedInstructions, 0);
+                if (instructions[i].Contains("jmp"))
                 {
-                    count++;
+                    modifiedInstructions[i] = modifiedInstructions[i].Replace("jmp", "nop");
+                }
+                else if (instructions[i].Contains("nop"))
+                {
+                    modifiedInstructions[i] = modifiedInstructions[i].Replace("nop", "jmp");
+                }
+                else
+                {
+                    continue;
+                }
+                
+                int accumulator = 0;
+                int instructionNumber = 0;
+                int instructionNumberImmediatelyAfterLastInstruction = modifiedInstructions.Length;
+                int iteration = 0;
+                
+                while (instructionNumber != instructionNumberImmediatelyAfterLastInstruction)
+                {
+                    if (instructionNumber > modifiedInstructions.Length)
+                    {
+                        throw new Exception($"Invalid instruction number: {instructionNumber}");
+                    }
+
+                    if (iteration > modifiedInstructions.Length)
+                    {
+                        break;
+                    }
+                
+                    string instruction = modifiedInstructions[instructionNumber];
+
+                    RunInstruction(instruction, out int changeInAccumulator, out int changeInInstructionNumber);
+
+                    iteration++;
+                    accumulator += changeInAccumulator;
+                    instructionNumber += changeInInstructionNumber;
+                }
+
+                if (instructionNumber == instructionNumberImmediatelyAfterLastInstruction)
+                {
+                    Console.WriteLine(accumulator);
+                    break;
                 }
             }
-
-            return count;
         }
 
-        private static bool CanContainColor(string outerColor, Dictionary<string,List<string>> ruleDictionary, string goalInnerColor)
+        private static void RunInstructionsPartOne(string[] instructions)
         {
-            List<string> innerColors = ruleDictionary[outerColor];
+            int accumulator = 0;
+            int instructionNumber = 0;
             
-            if (innerColors.Count == 0)
+            List<int> runInstructionNumbers = new List<int>();
+
+            while (!runInstructionNumbers.Contains(instructionNumber))
             {
-                return false;
-            }
+                runInstructionNumbers.Add(instructionNumber);
                 
-            if (innerColors.Contains(goalInnerColor))
-            {
-                return true;
+                string instruction = instructions[instructionNumber];
+
+                RunInstruction(instruction, out int changeInAccumulator, out int changeInInstructionNumber);
+
+                accumulator += changeInAccumulator;
+                instructionNumber += changeInInstructionNumber;
             }
 
-            foreach (string innerColor in innerColors)
+            Console.WriteLine(accumulator);
+        }
+
+        private static void RunInstruction(string instruction, out int changeInAccumulator, out int changeInInstructionNumber)
+        {
+            string operation = instruction.Split(' ')[0];
+            int argument = int.Parse(instruction.Split(' ')[1]);
+
+            switch (operation)
             {
-                bool containsColor = CanContainColor(innerColor, ruleDictionary, goalInnerColor);
-                if (containsColor)
+                case "acc":
                 {
-                    return true;
+                    changeInAccumulator = argument;
+                    changeInInstructionNumber = 1;
+                    break;
+                }
+
+                case "jmp":
+                {
+                    changeInAccumulator = 0;
+                    changeInInstructionNumber = argument;
+                    break;
+                }
+
+                case "nop":
+                {
+                    changeInAccumulator = 0;
+                    changeInInstructionNumber = 1;
+                    break;
+                }
+
+                default:
+                {
+                    throw new Exception($"Invalid operation: {operation}");
                 }
             }
-            //If no inner colors are the goal color, it can't contain the color
-            return false;
-        }
-
-        private static Dictionary<string, List<Tuple<int, string>>> GetRuleDictionary(string[] rules)
-        {
-            Dictionary<string, List<Tuple<int, string>>> ruleDictionary = new Dictionary<string, List<Tuple<int, string>>>();
-            
-            foreach (string rule in rules)
-            {
-                string outerBagKey = GetOuterBagType(rule);
-                List<Tuple<int, string>> innerBagValue = GetInnerBagTypes(rule);
-                
-                ruleDictionary.Add(outerBagKey, innerBagValue);
-            }
-
-            return ruleDictionary;
-        }
-
-        private static List<Tuple<int, string>> GetInnerBagTypes(string rule)
-        {
-            List<Tuple<int, string>> innerBagTypes = new List<Tuple<int, string>>();
-
-            string[] splitIntoWords = rule.Split(' ');
-
-            // If the 5th word in the rule is "no", that means there are no inner bags
-            if (splitIntoWords[4] == "no")
-            {
-                return innerBagTypes;
-            }
-
-            int startingIndex = 4;
-            while (startingIndex < splitIntoWords.Length)
-            {
-                Tuple<int, string> countColor = new Tuple<int, string>(int.Parse(splitIntoWords[startingIndex]), $"{splitIntoWords[startingIndex + 1]} {splitIntoWords[startingIndex + 2]}");
-                innerBagTypes.Add(countColor);
-                startingIndex += 4;
-            }
-
-            return innerBagTypes;
-        }
-
-        private static string GetOuterBagType(string rule)
-        {
-            string[] splitIntoWords = rule.Split(' ');
-            string bagType = $"{splitIntoWords[0]} {splitIntoWords[1]}";
-
-            return bagType;
         }
     }
 }
