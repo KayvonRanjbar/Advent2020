@@ -6,34 +6,34 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Customs_Answers.txt">
+    <None Update="Inputs\Boarding_Passes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Entries.txt">
+    <None Update="Inputs\Customs_Answers.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Passwords_CorporatePolicies.txt">
+    <None Update="Inputs\Entries.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Map.txt">
+    <None Update="Inputs\Instructions.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Passports.txt">
+    <None Update="Inputs\Map.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Boarding_Passes.txt">
+    <None Update="Inputs\Passports.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Rules.txt">
+    <None Update="Inputs\Passwords_CorporatePolicies.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TestRules.txt">
+    <None Update="Inputs\Rules.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Instructions.txt">
+    <None Update="Inputs\Test_Instructions.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Test_Instructions.txt">
+    <None Update="Inputs\TestRules.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
