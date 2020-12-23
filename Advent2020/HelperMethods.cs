@@ -181,5 +181,35 @@ namespace Advent2020
             
             throw new Exception("The contiguous range was not found");
         }
+
+        public static void CountJoltageDifferences(List<long> sortedAdapterJoltageRatings,
+            out long oneJoltDifferences, out long threeJoltDifferences)
+        {
+            oneJoltDifferences = 0;
+            threeJoltDifferences = 1; // Start with always-there device joltage difference
+
+            switch (sortedAdapterJoltageRatings.First())
+            {
+                case 1:
+                    oneJoltDifferences++;
+                    break;
+                case 3:
+                    threeJoltDifferences++;
+                    break;
+            }
+            
+            for (int i = 0; i < sortedAdapterJoltageRatings.Count - 1; i++)
+            {
+                long difference = sortedAdapterJoltageRatings[i + 1] - sortedAdapterJoltageRatings[i];
+                if (difference == 1)
+                {
+                    oneJoltDifferences++;
+                }
+                else if (difference == 3)
+                {
+                    threeJoltDifferences++;
+                }
+            }
+        }
     }
 }

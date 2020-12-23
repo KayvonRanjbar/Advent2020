@@ -13,44 +13,6 @@ namespace Advent2020
             
             IEnumerable<long> adapterJoltageRatings =
                 File.ReadAllLines("Inputs/Joltage_ratings.txt").Select(long.Parse);
-
-            List<long> sortedAdapterJoltageRatings = adapterJoltageRatings.OrderBy(r => r).ToList();
-            
-            CountJoltageDifferences(sortedAdapterJoltageRatings, out long OneJoltDifferences, out long ThreeJoltDifferences);
-            
-            long productOfOneJoltDifferencesAndThreeJoltDifferences = OneJoltDifferences * ThreeJoltDifferences;
-
-            Console.WriteLine(productOfOneJoltDifferencesAndThreeJoltDifferences);
-        }
-
-        private static void CountJoltageDifferences(List<long> sortedAdapterJoltageRatings,
-            out long oneJoltDifferences, out long threeJoltDifferences)
-        {
-            oneJoltDifferences = 0;
-            threeJoltDifferences = 1; // Start with always-there device joltage difference
-
-            switch (sortedAdapterJoltageRatings.First())
-            {
-                case 1:
-                    oneJoltDifferences++;
-                    break;
-                case 3:
-                    threeJoltDifferences++;
-                    break;
-            }
-            
-            for (int i = 0; i < sortedAdapterJoltageRatings.Count - 1; i++)
-            {
-                long difference = sortedAdapterJoltageRatings[i + 1] - sortedAdapterJoltageRatings[i];
-                if (difference == 1)
-                {
-                    oneJoltDifferences++;
-                }
-                else if (difference == 3)
-                {
-                    threeJoltDifferences++;
-                }
-            }
         }
     }
 }
